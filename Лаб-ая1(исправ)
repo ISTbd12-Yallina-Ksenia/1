@@ -1,0 +1,57 @@
+##Теперь обрабатывается любое количество символов, любые символы. Если файл пустой или в нем нет чисел, удовлетворяющих условию,
+##на экран выводится сообщение об этом. 
+def tep(s, r, m): #функция для обработки чисел
+    if int(s, 16)<r: #число меньше предыдущего или нет
+        r=int(s, 16)
+    else:
+        List=[] 
+        for i in range(len(hex(m))):
+            if hex(m)[i] in allowedSymbols:
+                List.append(hex(m)[i]) ##помещаем в список элементы 16-чного числа, кроме x, который добавляется в python
+        List.pop(0) ##удаление 0, добавленный python
+        List=list(dict.fromkeys(List)) ##список из неповторяющихся цифр и букв A-F 16-чного числа
+        for i in List:
+            print(i, end=',') ##вывод цифр, входящих в максимальное число убывающей последовательности
+        print('\n') 
+        r=int(s, 16) ##сохранение текущего значения числа
+        m=int(s, 16) ##новое максимальное значение
+    return r, m
+with open("arr.txt") as c:
+    allowedSymbols=['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F', 'a', 'b','c','d','e','f'] ##символы 16-ричного числа
+    symbol=c.read(1)
+    StrNumber=""
+    length=len(StrNumber)
+    Max=0
+    R=0
+    while len(symbol)>0: ##сперва находим первое число и принимаем его максимальным
+        length=len(StrNumber)
+        if allowedSymbols.__contains__(symbol): 
+            StrNumber=StrNumber+symbol
+        elif length>=3 and StrNumber[-3]=='A': ##когда дошли до стороннего символа, проверяем число на соотв-е усл-ю
+             Number=int(StrNumber, base=16)
+             Max=Number
+             R=Number
+             break
+        symbol=c.read(1)
+        if len(symbol)==0: ##если больше нет символов в файле, то выводятся цифры первого числа
+            length=len(StrNumber) ##обновление длины для правильной обработки
+            if length>=3 and StrNumber[-3]=='A':
+                Max=int(StrNumber, base=16)
+                R=int(StrNumber, base=16)
+                R, Max=tep(StrNumber, R, Max)
+    StrNumber="" 
+    symbol=c.read(1)
+    while len(symbol)>0: ##пока символ не "пустой". чтение следующих символов, если они есть
+        length=len(StrNumber)
+        if allowedSymbols.__contains__(symbol): ##если прочитанный символ - символ 16-ричного числа
+            StrNumber=StrNumber+symbol
+        elif length>=3 and StrNumber[-3]=='A': ##когда дошли до стороннего символа, проверяем число на соотв-е усл-ю
+            R, Max=tep(StrNumber, R, Max)
+            StrNumber=""
+        symbol=c.read(1) ##читаем следующий символ    
+        if len(symbol)==0: ##если достигнут конец файла, делается доп.проверка
+            if length>=3 and StrNumber[-3]=='A':
+               R, Max=tep(StrNumber, R, Max)
+if StrNumber!="": R, Max=tep(StrNumber, R, Max) ##вывод числа, если оно больше предыдущего и последнее в файле
+print("Конец. Если чисел на экране нет, то в файле пусто либо в нем нет чисел, удовлетворяющих условию")
+
